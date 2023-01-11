@@ -1,3 +1,5 @@
+type ide = string
+
 type expr =
   | Const of int
   | Add of expr * expr
@@ -36,3 +38,4 @@ type decl_p =
   | Proc of ide * par_f * cmd   
   | DPSeq of decl_p * decl_p
 
+type prog = Prog of decl * cmd
