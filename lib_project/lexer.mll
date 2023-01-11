@@ -11,7 +11,7 @@ let int = '-'?digit+
 
 rule read =
   parse
-  | whire { read lexbuf }
+  | white { read lexbuf }
   | "(" { LPAREN }
   | ")" { RPAREN }
   | "[" { LSQPAREN }
