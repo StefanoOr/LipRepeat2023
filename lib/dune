@@ -1,5 +1,5 @@
 (library
- (name lip22))
+ (name lip22Lib))
 
 (menhir
  (modules parser))
