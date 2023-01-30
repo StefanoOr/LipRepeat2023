@@ -121,7 +121,7 @@ let rec trace1 = function
                (* Saving in memory *)
                IVar l -> St (getenv st, bind (getmem st) l v, Ok, getloc st) 
              | _ -> raise NoRuleApplies)
-        | ArrAssign(x,e1,e2) -> 
+        | Assign_arr(x,e1,e2) -> 
             let i = int_of_exprval (eval_expr st e1) in (* index *)
             let v = int_of_exprval (eval_expr st e2) in (* value *)
             (match (topenv st) x with
