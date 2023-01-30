@@ -22,6 +22,13 @@ type declv =
   | IntArr of ide * int
   | DvSeq of declv * declv
   
+(* Parametri *)
+type paramf = 
+  | Val of ide
+  | Ref of ide
+
+type parama = expr
+  
 type cmd =
   | Skip
   | Break
@@ -33,17 +40,11 @@ type cmd =
   | If of expr * cmd * cmd
   | Block of declv * cmd
   | Call of ide * parama 
+  
 
 (* dichiarazioni delle procedure *)
 type declp = Proc of ide * paramf * cmd
 
 type declplist = DeclList of declp list
-
-(* Parametri *)
-type paramf = 
-  | Val of ide
-  | Ref of ide
-
-type parama = expr
 
 type prog = Prog of declv * declplist * cmd
