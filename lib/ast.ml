@@ -21,6 +21,18 @@ type declv =
   | IntVar of ide
   | IntArr of ide * int
   | DvSeq of declv * declv
+  
+type cmd =
+  | Skip
+  | Break
+  | Repeat of cmd 
+  | RptSeq of cmd * cmd
+  | Assign of ide * expr
+  | ArrAssign of ide * expr * expr
+  | Seq of cmd * cmd
+  | If of expr * cmd * cmd
+  | Block of declv * cmd
+  | Call of ide * parama 
 
 (* dichiarazioni delle procedure *)
 type declp = Proc of ide * paramf * cmd
@@ -33,17 +45,5 @@ type paramf =
   | Ref of ide
 
 type parama = expr
-
-type cmd =
-  | Skip
-  | Break
-  | Repeat of cmd 
-  | RptSeq of cmd * cmd
-  | Assign of ide * expr
-  | ArrAssign of ide * expr * expr
-  | Seq of cmd * cmd
-  | If of expr * cmd * cmd
-  | Block of declv * cmd
-  | Call of ide * parama 
 
 type prog = Prog of declv * declplist * cmd
