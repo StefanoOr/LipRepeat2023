@@ -14,3 +14,12 @@ array a[5]; a[0]:=a[1],5,x,Err
 array a[5]; a[0]:=0; a[5]:=1,5,x,Err
 int x; proc f(ref y) { y := y+1 }; x:=51; f(x+1),20,x,Err
 int x; break; x:=5,10,x,Err
+int x; repeat break; x:=0 forever; x:=1,10,x,Ok 1
+int x; { x:=0 },10,x,Ok 0
+int x; array a[3]; proc f(ref y) { y := y+1 } proc g(ref z) { z := z+2 }; a[0]:=51; f(a[0]); g(a[0]); x:=a[0],20,x,Ok 54
+int x; x:=0; repeat if x=3 then break else x:=x+1 forever,10,x,Ok 3
+int x; array a[1]; x:=a[0],3,x,Err
+int x; array a[2]; proc f(val y) { a[1]:=y+1 }; a[0]:=0; f(a[0]); x:=a[1],10,x,Ok 1
+int x; array a[2]; proc f(val y) { a[1]:=y+1 }; a[0]:=1; f(a[0]); repeat if a[1] <= 10 then f(a[1]) else break forever; x:=a[1],25,x,Ok 11
+int x; proc f(val y) { { int z; z:=1+y; x:=z } }; x:=1; f(x),20,x,Ok 2
+int x; int y; int z; proc f(val y) { y:=x*z; y:=x+y } proc m(val x) { y:=y+x } proc h(val w) { {int x; x:=2; f(w)} }; x:=1; y:=1; z:=3; m(x); h(x),8,x,Ok 1

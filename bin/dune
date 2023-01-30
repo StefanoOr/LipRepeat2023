@@ -1,4 +1,4 @@
 (executable
  (public_name lip22)
  (name main)
- (libraries lip22))
+ (libraries lip22Lib))
