@@ -12,9 +12,15 @@ open Ast
 %token MUL
 %token EQ
 %token LEQ
+%token LPAREN
+%token RPAREN
+%token LBRACE
+%token RBRACE
+%token RBRACKET
+%token LBRACKET
+%token EOF
 %token <string> ID
 %token <int> CONST
-
 %token SKIP
 %token BREAK
 %token ASSIGN
@@ -25,20 +31,10 @@ open Ast
 %token ELSE
 %token REPEAT
 %token FOREVER
-
 %token PROC
 %token REF
 %token VAL
-
 %token INTDEC
-
-%token LPAREN
-%token RPAREN
-%token LBRACE
-%token RBRACE
-%token RBRACKET
-%token LBRACKET
-%token EOF
 
 %left SEQ
 %nonassoc ELSE 
@@ -74,20 +70,6 @@ expr:
   | LPAREN; e=expr; RPAREN { e }
 ;
 
-paramf:
-  | VAL; x=ID; { Val x }
-  | REF; x=ID; { Ref x }
-;
-
-parama: | e=expr; { e };
-
-declv:
-  | d1=declv; SEQ; d2=declv; { DvSeq(d1,d2) }
-  | INTDEC; x=ID; { IntVar x }
-  | ARRAY; x=ID; LBRACKET; n=CONST; RBRACKET; { IntArr(x,n) }
-  | { EmptyDeclv }
-;
-
 cmd:
   | SKIP; { Skip }
   | BREAK; { Break }
@@ -102,9 +84,24 @@ cmd:
   | LPAREN; c=cmd; RPAREN; { c }
 ;
 
+declv:
+  | d1=declv; SEQ; d2=declv; { DvSeq(d1,d2) }
+  | INTDEC; x=ID; { IntVar x }
+  | ARRAY; x=ID; LBRACKET; n=CONST; RBRACKET; { IntArr(x,n) }
+  | { EmptyDeclv }
+;
+
 declp:
   | PROC; x=ID; LPAREN; p=paramf; RPAREN; LBRACE; c=cmd; RBRACE; { Proc(x,p,c) }
 
 declplist:
   | SEQ; dl=nonempty_list(declp); SEQ; { DeclList dl }
   | { DeclList [] }
+;
+  
+paramf:
+  | VAL; x=ID; { Val x }
+  | REF; x=ID; { Ref x }
+;
+
+parama: | e=expr; { e };
