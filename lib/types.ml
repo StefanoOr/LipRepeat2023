@@ -3,15 +3,17 @@ open Ast
     
 type loc = int
 
-type envval = IVar of loc | IFun of ide * cmd * expr
+type envval = IVar of loc | IArr of loc * int | Procv of paramf * cmd
 type memval = int
 
 type env = ide -> envval
 type mem = loc -> memval
+type trm = Ok | Br
+type exprval = Bool of bool | Int of int
 
 (* The third component of the state is the first free location.
    We assume that the store is unbounded *)
-type state = env list * mem * loc
+type state = env list * mem * trm * loc
 
 let topenv (el,_,_) = match el with
     [] -> failwith "empty environment stack"
@@ -24,8 +26,10 @@ let popenv (el,_,_) = match el with
 let getenv (el,_,_) = el
 let getmem (_,m,_) = m
 let getloc (_,_,l) = l
+let gettrm (_,_,t,_) = t
   
 type conf = St of state | Cmd of cmd * state
 
 exception TypeError of string
+exception UnboundLoc of loc
 exception UnboundVar of ide
