@@ -106,7 +106,7 @@ let rec vars_of_expr = function
   | False
   | Const _ -> []
   | Var x -> [x]
-  | Arr(x,_) -> [x]  (* TODO *)
+  | Arr(x,_) -> [x]  
   | Not e -> vars_of_expr e
   | And(e1,e2) 
   | Or(e1,e2) 

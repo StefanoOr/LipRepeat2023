@@ -2,10 +2,7 @@ open Ast
     
 type loc = int
 
-type envval = 
-    IVar of loc 
-  | IArr of loc * int
-  | Procv of paramf * cmd
+type envval =  IVar of loc  | IArr of loc * int | Procv of paramf * cmd
 
 type memval = int
 
@@ -14,8 +11,7 @@ type mem = loc -> memval
 type trm = Ok | Br
 type exprval = Bool of bool | Int of int
 
-(* The third component of the state is the first free location.
-   We assume that the store is unbounded *)
+(*il quarto componente dello stato è la prima locazione libera .*)
 type state = env list * mem * trm * loc
 
 let topenv (el,_,_,_) = match el with
@@ -28,8 +24,9 @@ let popenv (el,_,_,_) = match el with
 
 let getenv (el,_,_,_) = el
 let getmem (_,m,_,_) = m
-let getloc (_,_,_,l) = l
 let gettrm (_,_,t,_) = t
+let getloc (_,_,_,l) = l
+
   
 type conf = St of state | Cmd of cmd * state
 

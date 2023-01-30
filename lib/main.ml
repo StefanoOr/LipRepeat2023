@@ -6,20 +6,20 @@ let parse (s : string) : prog =
   let ast = Parser.prog Lexer.read lexbuf in
   ast
 
-(* empty env *)
+(*  env vuoto *)
 let botenv = fun x -> raise (UnboundVar x)
-(* empty mem *)
+(*  mem vuoto *)
 let botmem = fun l -> raise (UnboundLoc l)
 
 (* apply : state -> ide -> memval *)
-(* returns the memory value of the variable *)
+(*  ritorna il valore della memoria della variabile  *)
 let apply st x = match topenv st x with
   IVar l -> getmem st l
 | _ -> failwith "apply error"
 
 (* apply_array : state -> ide -> int -> memval *)
-(* returns the memval of an array named x.
- * index is summed with the location of the first element *)
+(*  restituisce  il memval dell'array x
+ *  indice è sommato con alla locazione del primo elemento *)
 let apply_array st x index = 
     match (topenv st) x with
   | IArr (l, dim) -> 
@@ -29,7 +29,7 @@ let apply_array st x index =
   | _ -> failwith "apply_array applies only to arrays"
 
 (* int_of_exprval : exprval -> int 
- * Checks if an exprval is an int *)
+ *  controlla se un exprval è un intero *)
 let int_of_exprval = function
     Int n -> n
   | _ -> raise (TypeError "exprval must be an int")
@@ -39,10 +39,10 @@ let int_of_exprval = function
 let rec eval_expr st = function
     True -> Bool true
   | False -> Bool false 
-  | Var x ->  Int (apply st x) (* memory value of x *)
+  | Var x ->  Int (apply st x) (*valore della memoria x *)
   | Arr(x,e) -> 
       let i = int_of_exprval (eval_expr st e) in 
-      Int(apply_array st x i) (* memory value of x[i] *)
+      Int(apply_array st x i) (*valore della memoria x [i] *)
   | Const n -> Int n
   | Not(e) -> (match eval_expr st e with
         Bool b -> Bool(not b)
@@ -78,12 +78,12 @@ let rec eval_expr st = function
       )        
 
 (* bind : ('a -> 'b) -> 'c -> 'b -> ('a -> 'b) *)
-(* Defines a new association from x to v for the function f. *)
+(*   Definisce una nuova assocciazione da x a v per  la funzione f*)
 let bind f x v = fun y -> if y=x then v else f y
 
 (* sem_declv : env * loc -> env * loc *)
-(* Big-step semantics of variable declarations. 
- * Returns the couple (environment, location). *)
+(* Big-step semantics of variable declarations.  
+ * restituisce la coppia (environment, location). *)
 let rec sem_declv (r,l) = function
     EmptyDeclv -> (r,l)
   | IntVar x -> let r' = bind r x (IVar l) in (r',l+1)
@@ -91,34 +91,32 @@ let rec sem_declv (r,l) = function
   | DvSeq(dv1,dv2) -> let (r',l') = sem_declv (r,l) dv1 in sem_declv (r',l') dv2
 
 (* sem_declp : env -> declplist -> env *)
-(* Big-step semantics of procedure declarations
- * Returns the new environment. *)
+(* Returns the new environment. restituisce il nuovo ambiente  *)
 let rec sem_declp r (DeclList l) = match l with
     [] -> r
   | Proc(x,pf,c)::dpl -> let r' = bind r x (Procv(pf,c)) in sem_declp r' (DeclList dpl)
 
 (* trace1 : conf -> conf *)
-(* Small-step semantics of configurations. 
- * Implements the inference rules in README.md *)
+
 let rec trace1 = function
-    (* If there is a break then it is outside a repeat forever, else the program has terminated. *)
+    (* Se c'e un break all'interno di una repeat esce dalla repeat , se fuori termina il programma  *)
     St st when (gettrm st) = Br -> raise BreakOutsideRepeat
   | St _ -> raise NoRuleApplies
   | Cmd(_,st) when (gettrm st) = Br -> raise BreakOutsideRepeat
   | Cmd(c,st) -> match c with
-          Skip -> St st (* Returning the current state *)
-        | Break -> St (getenv st, getmem st, Br, getloc st) (* Setting the Br tag *)
-        | Repeat c -> Cmd((RptSeq(c,c)),st) (* Entering in the repeat *)
-        | RptSeq(c',c) -> (match trace1 (Cmd(c',st)) with (* Reducing the current command (c'), c is the initial one *)
-              (* Exiting the repeat if c' is a break *)
+          Skip -> St st (* restituisce lo stato corrente  *)
+        | Break -> St (getenv st, getmem st, Br, getloc st) 
+        | Repeat c -> Cmd((RptSeq(c,c)),st) (* entra nel  repeat *)
+        | RptSeq(c',c) -> (match trace1 (Cmd(c',st)) with (*  riduuce il commando corrente *)
+              (* esce dal repeat se c' è un break *)
               St st' 
             | Cmd(_,st') when (gettrm st') = Br -> St (getenv st', getmem st', Ok, getloc st') 
-            | St st' -> Cmd((RptSeq(c,c)),st') (* Repeating the initial command *)
+            | St st' -> Cmd((RptSeq(c,c)),st') 
             | Cmd(c'',st') -> Cmd((RptSeq(c'',c)),st'))
         | Assign(x,e) -> 
-            let v = int_of_exprval (eval_expr st e) in (* Value to be saved *)
-            (match (topenv st) x with (* Memory location retrieval *)
-               (* Saving in memory *)
+            let v = int_of_exprval (eval_expr st e) in (*valore da salvare  *)
+            (match (topenv st) x with (* recupera locazione di memoria  *)
+               (*salva in memoria  *)
                IVar l -> St (getenv st, bind (getmem st) l v, Ok, getloc st) 
              | _ -> raise NoRuleApplies)
         | ArrAssign(x,e1,e2) -> 
@@ -127,7 +125,7 @@ let rec trace1 = function
             (match (topenv st) x with
                IArr(l,dim) ->
                  if i >= 0 && i < dim 
-                 (* Saving in memory *)
+                 (* salva in memoria  *)
                  then St (getenv st, bind (getmem st) (l+i) v, Ok, getloc st)
                  else raise IndexOutOfBound
              | _ -> raise NoRuleApplies)
@@ -138,35 +136,31 @@ let rec trace1 = function
             Bool true -> Cmd(c1,st)
           | Bool false -> Cmd(c2,st)
           | _ -> raise (TypeError "expr in If must be a bool"))
-        (* Declarations were already decleared *)
+       
         | Block(EmptyDeclv,c1) -> (match trace1 (Cmd(c1,st)) with
-            St st' -> St(popenv st', getmem st', Ok, getloc st') (* Returning the state without the local environment *)
+            St st' -> St(popenv st', getmem st', Ok, getloc st') (* ritorna lo stato senza l'ambiente locale *)
           | Cmd(c',st') -> (Cmd(Block(EmptyDeclv,c'),st'))) 
         | Block(dv,c) -> 
-            (* Declaring variables *)
+            (* dichiarazione variabile  *)
             let (r,l) = sem_declv (topenv st, getloc st) dv in
-            (* New environment on the top of the stack (local + non local block env) *)
+            (*    nuovo ambiente in cima allo stack *)
             let st' = (r::(getenv st), getmem st, Ok, l) in
-            (Cmd(Block(EmptyDeclv,c),st')) (* The block is ready to be executed *)
+            (Cmd(Block(EmptyDeclv,c),st')) (*il blocco è pronto per essere eseguito *)
         | Call(x,p) ->
             let r = topenv st in
             match r x with
                 Procv(Val y,c) ->
-                  let v = eval_expr st p in (* Value of the actual param p *)
-                  let l = getloc st in    (* First free location *)
-                  (* Binding the formal param y to l *)
+                  let v = eval_expr st p in (*  valore dell'attuale parametro p *)
+                  let l = getloc st in    (* prima locazione libera  *)
+                  (* associa il parametro y a l *)
                   let r' = bind r y (IVar l) in
-                  (* Saving the actual param v in l *)
+                  (*salva l'attuale parametro v in l  *)
                   let s = bind (getmem st) l (int_of_exprval v) in 
-                  (* Wrapping the procedure command with a block
-                     (updating the first available memory location as it is associated with y) *)
+                
                   trace1 (Cmd(Block(EmptyDeclv,c), (r'::getenv st, s, Ok, l+1)))
-              | Procv(Ref y,c) -> (match p with (* Checking if the reference parameter is 
-                                                   a variable or an array and acts accordingly *)
-                  Var x -> 
-                    (* Binding the formal param y to the memory location of x *)
+              | Procv(Ref y,c) -> (match p with (* controlla se il parametro referente è una variabile o un array*)
+                  Var x ->   
                     let r' = bind r y (r x) in
-                    (* Wrapping the procedure command with a block *)
                     trace1 (Cmd(Block(EmptyDeclv,c), (r'::getenv st, getmem st, Ok, (getloc st))))
                 | Arr(x,e) -> 
                     let i = int_of_exprval (eval_expr st e) in (* index *)
@@ -174,7 +168,6 @@ let rec trace1 = function
                        IArr(l,d) -> 
                          if i >= 0 && i < d
                          then 
-                           (* Binding the formal param y to the memory location of x[i] *)
                            let r' = bind r y (IVar (l+i)) in
                            trace1 (Cmd(Block(EmptyDeclv,c), (r'::getenv st, getmem st, Ok, (getloc st))))
                          else raise IndexOutOfBound

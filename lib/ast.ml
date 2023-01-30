@@ -15,14 +15,14 @@ type expr =
   | Eq of expr * expr
   | Leq of expr * expr
 
-(* Parameters *)
+(* Parametri *)
 type paramf = 
   | Val of ide
   | Ref of ide
 
 type parama = expr
 
-(* Value Declaration *)
+(* dichiarazioni delle variabili *)
 type declv =
   | EmptyDeclv
   | IntVar of ide
@@ -41,7 +41,7 @@ type cmd =
   | Block of declv * cmd
   | Call of ide * parama 
 
-(* Procedure Declaration *)
+(* dichiarazioni delle procedure *)
 type declp = Proc of ide * paramf * cmd
 
 type declplist = DeclList of declp list
