@@ -15,20 +15,6 @@ type expr =
   | Eq of expr * expr
   | Leq of expr * expr
 
-(* Parametri *)
-type paramf = 
-  | Val of ide
-  | Ref of ide
-
-type parama = expr
-
-(* dichiarazioni delle variabili *)
-type declv =
-  | EmptyDeclv
-  | IntVar of ide
-  | IntArr of ide * int
-  | DvSeq of declv * declv
-
 type cmd =
   | Skip
   | Break
@@ -40,10 +26,24 @@ type cmd =
   | If of expr * cmd * cmd
   | Block of declv * cmd
   | Call of ide * parama 
+  
+(* dichiarazioni delle variabili *)
+type declv =
+  | EmptyDeclv
+  | IntVar of ide
+  | IntArr of ide * int
+  | DvSeq of declv * declv
 
 (* dichiarazioni delle procedure *)
 type declp = Proc of ide * paramf * cmd
 
 type declplist = DeclList of declp list
+
+(* Parametri *)
+type paramf = 
+  | Val of ide
+  | Ref of ide
+
+type parama = expr
 
 type prog = Prog of declv * declplist * cmd
