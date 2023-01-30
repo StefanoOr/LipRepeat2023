@@ -14,18 +14,6 @@ type expr =
   | Mul of expr * expr
   | Eq of expr * expr
   | Leq of expr * expr
-
-type cmd =
-  | Skip
-  | Break
-  | Repeat of cmd 
-  | RptSeq of cmd * cmd
-  | Assign of ide * expr
-  | ArrAssign of ide * expr * expr
-  | Seq of cmd * cmd
-  | If of expr * cmd * cmd
-  | Block of declv * cmd
-  | Call of ide * parama 
   
 (* dichiarazioni delle variabili *)
 type declv =
@@ -45,5 +33,17 @@ type paramf =
   | Ref of ide
 
 type parama = expr
+
+type cmd =
+  | Skip
+  | Break
+  | Repeat of cmd 
+  | RptSeq of cmd * cmd
+  | Assign of ide * expr
+  | ArrAssign of ide * expr * expr
+  | Seq of cmd * cmd
+  | If of expr * cmd * cmd
+  | Block of declv * cmd
+  | Call of ide * parama 
 
 type prog = Prog of declv * declplist * cmd
