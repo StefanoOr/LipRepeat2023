@@ -7,7 +7,7 @@
 (source
  (github username/reponame))
 
-(authors "Author Name")
+(authors "Orrù Stefano, Curreli Stefano, Solinas Gianluca, Pisano Leonardo")
 
 (maintainers "Maintainer Name")
 
