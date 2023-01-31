@@ -50,7 +50,7 @@ open Ast
 %%
 
 prog:
-  | dv=declv; dp=declplist; c=cmd; EOF { Prog(dv,dp,c) }
+  | dv=decl_v; dp=declplist; c=cmd; EOF { Prog(dv,dp,c) }
 ;
 
 expr:
@@ -60,9 +60,9 @@ expr:
   | e1=expr; MUL; e2=expr; { Mul(e1,e2) }
   | TRUE { True }
   | FALSE { False }
+  | NOT; e=expr; { Not(e) }
   | e1=expr; AND; e2=expr; { And(e1,e2) }
   | e1=expr; OR; e2=expr; { Or(e1,e2) }
-  | NOT; e=expr; { Not(e) }
   | e1=expr; EQ; e2=expr; { Eq(e1,e2) }
   | e1=expr; LEQ; e2=expr; { Leq(e1,e2) }
   | x=ID; { Var x }
@@ -74,28 +74,28 @@ cmd:
   | SKIP; { Skip }
   | BREAK; { Break }
   | x=ID; ASSIGN; e=expr; { Assign(x,e) }
-  | x=ID; LBRACKET; e1=expr; RBRACKET; ASSIGN; e2=expr; { ArrAssign(x,e1,e2) }
+  | x=ID; LBRACKET; e1=expr; RBRACKET; ASSIGN; e2=expr; { Assign_arr(x,e1,e2) }
   | c1=cmd; SEQ; c2=cmd; { Seq(c1,c2) }
-  | IF; e1=expr; THEN; c1=cmd; ELSE; c2=cmd; { If(e1,c1,c2) }
   | REPEAT; c=cmd; FOREVER; { Repeat c }
-  | LBRACE; c=cmd; RBRACE; { c }
-  | LBRACE; d=declv; SEQ; c=cmd; RBRACE; { Block(d,c) }
+  | IF; e1=expr; THEN; c1=cmd; ELSE; c2=cmd; { If(e1,c1,c2) }
+  | LBRACE; d=decl_v; SEQ; c=cmd; RBRACE; { Block(d,c) }
   | x=ID; LPAREN; p=parama; RPAREN; { Call(x,p) }
+  | LBRACE; c=cmd; RBRACE; { c }
   | LPAREN; c=cmd; RPAREN; { c }
 ;
 
-declv:
-  | d1=declv; SEQ; d2=declv; { DvSeq(d1,d2) }
+decl_v:
+  | d1=decl_v; SEQ; d2=decl_v; { DvSeq(d1,d2) }
   | INTDEC; x=ID; { IntVar x }
   | ARRAY; x=ID; LBRACKET; n=CONST; RBRACKET; { IntArr(x,n) }
-  | { EmptyDeclv }
+  | { NullVar }
 ;
 
-declp:
+decl_p:
   | PROC; x=ID; LPAREN; p=paramf; RPAREN; LBRACE; c=cmd; RBRACE; { Proc(x,p,c) }
 
 declplist:
-  | SEQ; dl=nonempty_list(declp); SEQ; { DeclList dl }
+  | SEQ; dl=nonempty_list(decl_p); SEQ; { DeclList dl }
   | { DeclList [] }
 ;
   

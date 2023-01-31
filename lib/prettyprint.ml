@@ -25,9 +25,9 @@ let string_of_paramf = function
 
 let string_of_parama = string_of_expr 
 
-let rec string_of_declv = function
-  | EmptyDeclv -> ""
-  | DvSeq(d1, d2) -> string_of_declv d1 ^ " ; " ^ string_of_declv d2
+let rec string_of_decl_v = function
+  | NullVar -> ""
+  | DvSeq(d1, d2) -> string_of_decl_v d1 ^ " ; " ^ string_of_decl_v d2
   | IntVar x -> x 
   | IntArr(x,dim) -> x ^ "[" ^ string_of_int dim ^ "]"
 
@@ -35,23 +35,23 @@ let rec string_of_cmd = function
     Skip -> "skip"
   | Break -> "break"
   | Assign(x,e) -> x ^ ":=" ^ string_of_expr e
-  | ArrAssign(x,e1,e2) -> x ^ "[" ^ string_of_expr e1 ^ "]:=" ^ string_of_expr e2
+  | Assign_arr(x,e1,e2) -> x ^ "[" ^ string_of_expr e1 ^ "]:=" ^ string_of_expr e2
   | Seq(c1,c2) -> string_of_cmd c1 ^ "; " ^ string_of_cmd c2
   | If(e,c1,c2) -> "if " ^ string_of_expr e ^ " then " ^ string_of_cmd c1 ^ " else " ^ string_of_cmd c2
   | Repeat c -> "repeat " ^ string_of_cmd c ^ " forever"
-  | Block(d,c) -> string_of_declv d ^ " { " ^ string_of_cmd c ^ " }"
+  | Block(d,c) -> string_of_decl_v d ^ " { " ^ string_of_cmd c ^ " }"
   | Call(ide, param) -> ide ^ "(" ^ string_of_parama param ^ ")"
   | RptSeq(c1,c2)-> "rptseq( " ^ string_of_cmd c1 ^ " , " ^ string_of_cmd c2 ^ " )"
 
-let string_of_declp = function
+let string_of_decl_p = function
     Proc(ide,param,c) -> "proc " ^ ide ^ "(" ^ string_of_paramf param ^ ") {" ^ string_of_cmd c ^ "}"
 
 let rec string_of_declplist = function
     DeclList [] -> ""
-  | DeclList (d::t) -> string_of_declp d ^ string_of_declplist (DeclList t)
+  | DeclList (d::t) -> string_of_decl_p d ^ string_of_declplist (DeclList t)
 
 let string_of_prog = function
-  Prog(dv,dp,c) -> string_of_declv dv ^ string_of_declplist dp ^ string_of_cmd c 
+  Prog(dv,dp,c) -> string_of_decl_v dv ^ string_of_declplist dp ^ string_of_cmd c 
 
 
 let string_of_loc f = "loc: " ^ string_of_int f
@@ -120,7 +120,7 @@ let rec vars_of_cmd = function
     Skip
   | Break -> []
   | Assign(x,e) -> union [x] (vars_of_expr e)
-  | ArrAssign(x,e1,e2) -> union (union [x] (vars_of_expr e1)) (vars_of_expr e2)
+  | Assign_arr(x,e1,e2) -> union (union [x] (vars_of_expr e1)) (vars_of_expr e2)
   | Seq(c1,c2) -> union (vars_of_cmd c1) (vars_of_cmd c2)
   | If(e,c1,c2) -> union (vars_of_expr e) (union (vars_of_cmd c1) (vars_of_cmd c2))
   | Repeat c -> vars_of_cmd c

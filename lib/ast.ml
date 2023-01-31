@@ -1,26 +1,26 @@
 type ide = string
 
 type expr =
-  | True
-  | False
-  | Var of ide 
-  | Arr of ide * expr
   | Const of int
-  | Not of expr
-  | And of expr * expr
-  | Or of expr * expr
   | Add of expr * expr
   | Sub of expr * expr
   | Mul of expr * expr
+  | True
+  | False
+  | And of expr * expr
+  | Or of expr * expr
+  | Not of expr  
   | Eq of expr * expr
   | Leq of expr * expr
+  | Var of ide 
+  | Arr of ide * expr
   
 (* dichiarazioni delle variabili *)
-type declv =
-  | EmptyDeclv
+type decl_v =
+  | NullVar
   | IntVar of ide
   | IntArr of ide * int
-  | DvSeq of declv * declv
+  | DvSeq of decl_v * decl_v
   
 (* Parametri *)
 type paramf = 
@@ -32,19 +32,19 @@ type parama = expr
 type cmd =
   | Skip
   | Break
+  | Assign of ide * expr
+  | Assign_arr of ide * expr * expr
+  | Seq of cmd * cmd
   | Repeat of cmd 
   | RptSeq of cmd * cmd
-  | Assign of ide * expr
-  | ArrAssign of ide * expr * expr
-  | Seq of cmd * cmd
   | If of expr * cmd * cmd
-  | Block of declv * cmd
+  | Block of decl_v * cmd
   | Call of ide * parama 
   
 
 (* dichiarazioni delle procedure *)
-type declp = Proc of ide * paramf * cmd
+type decl_p = Proc of ide * paramf * cmd
 
-type declplist = DeclList of declp list
+type declplist = DeclList of decl_p list
 
-type prog = Prog of declv * declplist * cmd
+type prog = Prog of decl_v * declplist * cmd
